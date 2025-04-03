@@ -10,6 +10,7 @@ import NotFound from './pages/misc/NotFound';
 import Register from './pages/auth/Register';
 import Home from './pages/dashboard/Home';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import Products from './pages/dashboard/Products';
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Home />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/products'
+              element={
+                <ProtectedRoute>
+                  <Products />
                 </ProtectedRoute>
               }
             />

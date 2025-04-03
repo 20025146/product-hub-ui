@@ -65,16 +65,6 @@ export function Header() {
           {/* Authentication Navigation */}
           <AuthNav />
 
-          {isAuthenticated && (
-            <Button
-              variant='ghost'
-              size='icon'
-              className='rounded-full'
-              aria-label='Settings'>
-              <Settings className='w-5 h-5' />
-            </Button>
-          )}
-
           {/* Mobile Navigation */}
           <Sheet>
             <SheetTrigger asChild className='md:hidden'>
