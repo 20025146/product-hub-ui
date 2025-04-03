@@ -14,8 +14,6 @@ const navItems = [
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
-  const location = useLocation();
-  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {

@@ -17,13 +17,6 @@ export function AuthNav() {
       <div className='flex items-center gap-2'>
         <Button
           variant='ghost'
-          size='icon'
-          className='rounded-full'
-          aria-label='User profile'>
-          <UserCircle className='w-5 h-5' />
-        </Button>
-        <Button
-          variant='ghost'
           size='sm'
           onClick={handleLogout}
           className='gap-1.5'>
