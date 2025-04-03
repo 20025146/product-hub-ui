@@ -20,6 +20,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Check if user is authenticated on initial load
   useEffect(() => {
     const authStatus = localStorage.getItem('isAuthenticated');
+    console.log({ authStatus });
     setIsAuthenticated(authStatus === 'true');
   }, []);
 

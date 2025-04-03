@@ -9,6 +9,7 @@ import SignIn from './pages/auth/Signin';
 import NotFound from './pages/misc/NotFound';
 import Register from './pages/auth/Register';
 import Home from './pages/dashboard/Home';
+import { ProtectedRoute } from './components/ProtectedRoute';
 
 const queryClient = new QueryClient();
 
@@ -25,9 +26,9 @@ const App = () => (
             <Route
               path='/'
               element={
-                // <ProtectedRoute>
-                <Home />
-                // </ProtectedRoute>
+                <ProtectedRoute>
+                  <Home />
+                </ProtectedRoute>
               }
             />
 
