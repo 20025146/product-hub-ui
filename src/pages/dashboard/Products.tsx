@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   mockProducts,
@@ -29,6 +29,8 @@ import { ProductCard } from '@/components/ProductCard';
 import { Footer } from '@/components/layouts/Footer';
 import { ProductForm } from '@/components/form/ProductForm';
 import { Header } from '@/components/layouts/Header';
+import { productsAPI } from '@/lib/productApi';
+import { toast } from 'sonner';
 
 const Products = () => {
   const navigate = useNavigate();
@@ -41,12 +43,33 @@ const Products = () => {
   const [currentProduct, setCurrentProduct] = useState<Product | undefined>(
     undefined
   );
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Fetch products from API
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setIsLoading(true);
+        const data = await productsAPI.getAll();
+        setProducts(data.data);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        toast.error('Failed to load products');
+        // Fallback to mock data in case of API error
+        setProducts([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   // Filtering logic
-  const filteredProducts = products.filter((product) => {
+  const filteredProducts = products?.filter((product) => {
     const matchesSearch =
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchQuery.toLowerCase());
+      product?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product?.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory =
       categoryFilter === 'all' || product.category === categoryFilter;
 
@@ -64,37 +87,51 @@ const Products = () => {
     setIsFormOpen(true);
   };
 
-  const handleFormSubmit = (
+  const handleFormSubmit = async (
     data: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>
   ) => {
-    if (currentProduct) {
-      // Edit existing product
-      const updatedProducts = products.map((p) =>
-        p.id === currentProduct.id
-          ? {
-              ...p,
-              ...data,
-              updatedAt: new Date().toISOString(),
-            }
-          : p
-      );
-      setProducts(updatedProducts);
-    } else {
-      // Create new product
-      const newProduct = {
-        id: (products.length + 1).toString(),
-        ...data,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      setProducts([newProduct, ...products]);
-    }
+    try {
+      if (currentProduct) {
+        // Edit existing product
+        const updatedProduct = await productsAPI.update(
+          currentProduct.id,
+          data
+        );
 
-    setIsFormOpen(false);
+        setProducts((prevProducts) =>
+          prevProducts.map((p) =>
+            p.id === currentProduct.id ? updatedProduct : p
+          )
+        );
+
+        toast.success('Product updated successfully');
+      } else {
+        // Create new product
+        const newProduct = await productsAPI.create(data);
+
+        // setProducts((prevProducts) => [newProduct, ...prevProducts]);
+
+        toast.success('Product created successfully');
+      }
+
+      setIsFormOpen(false);
+    } catch (error) {
+      console.error('Error saving product:', error);
+      toast.error(
+        currentProduct ? 'Failed to update product' : 'Failed to create product'
+      );
+    }
   };
 
-  const handleDelete = (id: string) => {
-    setProducts(products.filter((p) => p.id !== id));
+  const handleDelete = async (id: string) => {
+    try {
+      await productsAPI.delete(id);
+      setProducts(products.filter((p) => p.id !== id));
+      toast.success('Product deleted successfully');
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      toast.error('Failed to delete product');
+    }
   };
 
   // Clear filters
@@ -102,7 +139,6 @@ const Products = () => {
     setSearchQuery('');
     setCategoryFilter('all');
   };
-
   return (
     <PageTransition>
       <div className='min-h-screen flex flex-col'>
@@ -206,8 +242,11 @@ const Products = () => {
               </div>
             )}
 
-            {/* Products Grid */}
-            {filteredProducts.length > 0 ? (
+            {isLoading ? (
+              <div className='flex justify-center items-center py-20'>
+                <div className='animate-spin rounded-full h-10 w-10 border-b-2 border-primary'></div>
+              </div>
+            ) : filteredProducts.length > 0 ? (
               <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
                 {filteredProducts.map((product, index) => (
                   <ProductCard

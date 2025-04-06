@@ -2,7 +2,12 @@ const API_URL = 'http://localhost:4000/api';
 
 export const productsAPI = {
   getAll: async () => {
-    const response = await fetch(`${API_URL}/products`);
+    const response = await fetch(`${API_URL}/product`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
 
     if (!response.ok) {
       throw new Error('Failed to fetch products');
@@ -12,7 +17,7 @@ export const productsAPI = {
   },
 
   getById: async (id: string) => {
-    const response = await fetch(`${API_URL}/products/${id}`);
+    const response = await fetch(`${API_URL}/product/${id}`);
 
     if (!response.ok) {
       throw new Error('Failed to fetch product');
@@ -22,7 +27,7 @@ export const productsAPI = {
   },
 
   create: async (productData) => {
-    const response = await fetch(`${API_URL}/products`, {
+    const response = await fetch(`${API_URL}/product`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
