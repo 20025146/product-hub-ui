@@ -31,7 +31,7 @@ export function ProductCard({
   onEdit,
   onDelete,
 }: ProductCardProps) {
-  const { id, name, description, price, category, stock, image } = product;
+  const { _id, name, description, price, category, stock, image } = product;
   const categoryInfo = mockCategories[category];
 
   const formattedPrice = new Intl.NumberFormat('en-US', {
@@ -40,7 +40,7 @@ export function ProductCard({
   }).format(price);
 
   const handleDelete = () => {
-    onDelete(id);
+    onDelete(_id);
     toast.success(`${name} has been deleted`);
   };
 
@@ -122,7 +122,7 @@ export function ProductCard({
               </AlertDialogContent>
             </AlertDialog>
 
-            <Link to={`/products/${id}`}>
+            <Link to={`/products/${_id}`}>
               <Button variant='ghost' size='icon' className='h-8 w-8'>
                 <ExternalLink className='h-4 w-4' />
               </Button>

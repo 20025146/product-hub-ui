@@ -34,7 +34,7 @@ import { toast } from 'sonner';
 
 const Products = () => {
   const navigate = useNavigate();
-  const [products, setProducts] = useState<Product[]>(mockProducts);
+  const [products, setProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<ProductCategory | 'all'>(
     'all'
@@ -94,13 +94,13 @@ const Products = () => {
       if (currentProduct) {
         // Edit existing product
         const updatedProduct = await productsAPI.update(
-          currentProduct.id,
+          currentProduct._id,
           data
         );
 
         setProducts((prevProducts) =>
           prevProducts.map((p) =>
-            p.id === currentProduct.id ? updatedProduct : p
+            p._id === currentProduct._id ? updatedProduct.data : p
           )
         );
 
@@ -108,8 +108,9 @@ const Products = () => {
       } else {
         // Create new product
         const newProduct = await productsAPI.create(data);
+        console.log(newProduct.products);
 
-        // setProducts((prevProducts) => [newProduct, ...prevProducts]);
+        setProducts((prevProducts) => [newProduct.products, ...prevProducts]);
 
         toast.success('Product created successfully');
       }
@@ -126,7 +127,7 @@ const Products = () => {
   const handleDelete = async (id: string) => {
     try {
       await productsAPI.delete(id);
-      setProducts(products.filter((p) => p.id !== id));
+      setProducts(products.filter((p) => p._id !== id));
       toast.success('Product deleted successfully');
     } catch (error) {
       console.error('Error deleting product:', error);
@@ -250,7 +251,7 @@ const Products = () => {
               <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
                 {filteredProducts.map((product, index) => (
                   <ProductCard
-                    key={product.id}
+                    key={product._id}
                     product={product}
                     index={index}
                     onEdit={handleOpenEdit}

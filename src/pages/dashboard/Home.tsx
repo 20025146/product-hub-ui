@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
@@ -15,14 +15,37 @@ import {
   getDashboardStats,
   mockCategories,
   mockProducts,
+  Product,
 } from '@/utils/mockData';
 import { Footer } from '@/components/layouts/Footer';
 import { Header } from '@/components/layouts/Header';
 import { PageTransition } from '@/components/custom/PageTransition';
 import { AnimatedCard } from '@/components/custom/AnimatedCard';
+import { productsAPI } from '@/lib/productApi';
+import { toast } from 'sonner';
 
 const Home = () => {
-  const recentProducts = mockProducts.slice(0, 3);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setIsLoading(true);
+        const data = await productsAPI.getAll();
+        setProducts(data.data);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        toast.error('Failed to load products');
+        // Fallback to mock data in case of API error
+        setProducts([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   return (
     <PageTransition>
@@ -56,13 +79,18 @@ const Home = () => {
                 </Link>
               </div>
 
+              {isLoading && (
+                <div className='flex justify-center items-center py-20'>
+                  <div className='animate-spin rounded-full h-10 w-10 border-b-2 border-primary'></div>
+                </div>
+              )}
               <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-                {recentProducts.map((product, index) => {
+                {products.slice(0, 3).map((product, index) => {
                   const categoryInfo = mockCategories[product.category];
 
                   return (
                     <AnimatedCard
-                      key={product.id}
+                      key={product._id}
                       animation='fade-in'
                       delay={
                         index === 0 ? 'none' : index === 1 ? 'short' : 'medium'
@@ -92,7 +120,7 @@ const Home = () => {
                             currency: 'USD',
                           }).format(product.price)}
                         </span>
-                        <Link to={`/products/${product.id}`}>
+                        <Link to={`/products/${product._id}`}>
                           <Button
                             variant='ghost'
                             size='sm'

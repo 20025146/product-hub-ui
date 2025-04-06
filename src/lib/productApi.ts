@@ -17,7 +17,12 @@ export const productsAPI = {
   },
 
   getById: async (id: string) => {
-    const response = await fetch(`${API_URL}/product/${id}`);
+    const response = await fetch(`${API_URL}/product/${id}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
 
     if (!response.ok) {
       throw new Error('Failed to fetch product');
@@ -44,7 +49,7 @@ export const productsAPI = {
   },
 
   update: async (id: string, productData) => {
-    const response = await fetch(`${API_URL}/products/${id}`, {
+    const response = await fetch(`${API_URL}/product/update/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -61,7 +66,7 @@ export const productsAPI = {
   },
 
   delete: async (id: string) => {
-    const response = await fetch(`${API_URL}/products/${id}`, {
+    const response = await fetch(`${API_URL}/product/delete/${id}`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${localStorage.getItem('authToken')}`,

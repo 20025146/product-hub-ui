@@ -11,6 +11,7 @@ import Register from './pages/auth/Register';
 import Home from './pages/dashboard/Home';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import Products from './pages/dashboard/Products';
+import ProductDetail from './pages/dashboard/ProductDetail';
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,15 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Products />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path='/products/:id'
+              element={
+                <ProtectedRoute>
+                  <ProductDetail />
                 </ProtectedRoute>
               }
             />
