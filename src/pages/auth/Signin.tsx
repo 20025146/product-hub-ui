@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/form';
 import { AnimatedCard } from '@/components/custom/AnimatedCard';
 import { PageTransition } from '@/components/custom/PageTransition';
+import { useAuth } from '@/context/AuthContext';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
@@ -27,10 +28,11 @@ const formSchema = z.object({
 
 const SignIn = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Initialize form
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -39,28 +41,17 @@ const SignIn = () => {
     },
   });
 
-  // Form submission handler
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsLoading(true);
 
-      // This is a mock authentication - in a real app, replace with actual authentication
-      if (
-        values.email === 'user@example.com' &&
-        values.password === 'password123'
-      ) {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+      const success = await login(values.email, values.password);
 
-        // Store auth state
-        localStorage.setItem('isAuthenticated', 'true');
-
+      if (success) {
         toast.success('Successfully signed in!');
         navigate('/');
       } else {
-        toast.error(
-          'Invalid credentials. Hint: use user@example.com / password123'
-        );
+        toast.error('Invalid credentials. Please try again.');
       }
     } catch (error) {
       toast.error('An error occurred during sign in');
@@ -148,7 +139,7 @@ const SignIn = () => {
             <p className='text-muted-foreground'>
               Don't have an account?{' '}
               <Link
-                to='/sign-up'
+                to='/register'
                 className='text-primary font-medium hover:underline'>
                 Sign up
               </Link>

@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/form';
 import { PageTransition } from '@/components/custom/PageTransition';
 import { AnimatedCard } from '@/components/custom/AnimatedCard';
+import { authAPI } from '@/lib/authApi';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters' }),
@@ -46,9 +47,8 @@ const Register = () => {
     try {
       setIsLoading(true);
 
-      // This is a mock registration - in a real app, replace with actual registration
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Call registration API
+      await authAPI.register( values.email, values.password);
 
       toast.success('Account created successfully! You can now sign in.');
       navigate('/sign-in');

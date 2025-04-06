@@ -1,3 +1,4 @@
+import { authAPI } from '@/lib/authApi';
 import {
   createContext,
   useState,
@@ -19,28 +20,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Check if user is authenticated on initial load
   useEffect(() => {
-    const authStatus = localStorage.getItem('isAuthenticated');
-    console.log({ authStatus });
-    setIsAuthenticated(authStatus === 'true');
+    const token = localStorage.getItem('authToken');
+    setIsAuthenticated(!!token); // Set isAuthenticated to true if token exists
   }, []);
 
   // Login function
   const login = async (email: string, password: string): Promise<boolean> => {
-    // In a real app, this would make an API call to authenticate
-    if (email === 'user@example.com' && password === 'password123') {
-      localStorage.setItem('isAuthenticated', 'true');
+    try {
+      // Call the API to authenticate
+      const response = await authAPI.login(email, password);
+
+      // Store the auth token in localStorage
+      localStorage.setItem('authToken', response.data.token);
       setIsAuthenticated(true);
       return true;
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
     }
-    return false;
   };
 
   // Logout function
   const logout = () => {
-    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('authToken'); // Remove the auth token
     setIsAuthenticated(false);
   };
-
   return (
     <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
       {children}
